@@ -1,6 +1,7 @@
 
 mapboxgl.accessToken = ''
 
+var markers = [];
 
 var map = new mapboxgl.Map({
     container: 'map',
@@ -9,20 +10,15 @@ var map = new mapboxgl.Map({
     zoom: 10
 });
 
-var marker = new mapboxgl.Marker()
-    .setLngLat([-71.104081, 42.365554])
+function create_marker(id, lat, lng){
+    var marker = new mapboxgl.Marker()
+    .setLngLat([lng, lat])
     .addTo(map);
-
-var counter = 0;
-function move(){
-    setTimeout(() =>{
-    if(counter >= busStops.length) return;
-    marker.setLngLat(busStops[counter]);
-    counter++;
-    move();
-    }, 1000);
+    markers[id] = marker;
 }
-function create_markers(locs){
+
+function change_marker(marker, lat, lng) {
+    marker.setLngLat([lng, lat]).addTo(map);
 }
 
 async function run(){
@@ -31,8 +27,16 @@ async function run(){
     console.log(locations);
     counter = 0;
     locations.forEach(element => {
-        let lat = element.counter.attributes.latitude
-        let lng = element.counter.attributes.longitude
+        let lat = element.attributes.latitude;
+        let lng = element.attributes.longitude;
+        let marker = markers[counter]
+        if (marker) {
+            change_marker(marker, lat, lng)
+        }
+        else {
+            create_marker(counter, lat, lng)
+        }
+        counter++;
     });
 
     //timer
